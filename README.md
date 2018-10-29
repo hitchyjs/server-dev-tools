@@ -34,7 +34,7 @@ If you want to test this you need a running Hitchy instance which is serving a p
 
     /home/me/dev/fancy-hitchy-extension/test/project/candidate-a
 
-The first path name addresses folder containing your extension. The second one is addressing a folder containing some (fake) Hitchy project used to test your extension. Distinguishing this essential to understanding how to use this module for starting a Hitchy instance for testing:
+The first path name addresses folder containing your extension. The second one is addressing a folder containing some (fake) Hitchy project used to test your extension. Distinguishing this is essential to understanding how to use this module for starting a Hitchy instance for testing:
 
 ```javascript
 const { start, stop, query } = require( "hitchy-server-dev-tools" );
@@ -68,7 +68,7 @@ The method is returning Promise resolved with Hitchy instance started properly.
 
 ### stop( instance )
 
-Providing the server instance promised by `start()` into this method the Hitchy instance gets shut down properly.
+This method takes the server instance promised by a previous invocation of method `start()` to shut down that server instance properly.
 
 The method is returning Promise resolved on Hitchy instance shut down properly.
 
@@ -78,7 +78,7 @@ Exposed collection `query` contains several methods available for emitting reque
 
 #### query.request( method, route, body, headers )
 
-This method is sending request via HTTP to most recently started Hitchy instance using provided HTTP method, some route into the instance as well as some body data and custom HTTP request headers.
+This method is sending a request via HTTP to most recently started Hitchy instance using provided HTTP method, some route into the instance as well as some body data and custom HTTP request headers.
 
 The request data in `body` might be string, Buffer or some arbitrary data with the latter implicitly converted to JSON string.
 
