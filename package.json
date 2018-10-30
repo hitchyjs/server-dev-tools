@@ -20,6 +20,6 @@
   },
   "homepage": "https://github.com/hitchyjs/server-dev-tools#readme",
   "dependencies": {
-    "hitchy": "0.0.17"
+    "hitchy": "*"
   }
 }
