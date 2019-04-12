@@ -86,7 +86,7 @@ exports.stop = function( server ) {
 	return server.then( serverInstance => {
 		return new Promise( resolve => {
 			if ( serverInstance ) {
-				serverInstance.on( "close", resolve );
+				serverInstance.once( "close", resolve );
 				serverInstance.close();
 			} else {
 				resolve();
