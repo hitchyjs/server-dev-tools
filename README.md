@@ -105,3 +105,37 @@ This is an alias of `query.request` with leading parameter `method` bound to `PU
 #### query.delete( route, data, headers )
 
 This is an alias of `query.request` with leading parameter `method` bound to `DELETE`.
+
+## CLI tools
+
+Starting with version 0.1.0 there is a tool named `hitchy-pm` that can be used in projects to fetch all peer dependencies of your project e.g. prior to running unit tests in a CI setup.
+
+`hitchy-pm` takes a list of peer dependencies and checks whether they exist in current project or not. Missing dependencies are installed using `npm` with `--no-save` option.
+
+```bash
+hitchy-pm hitchy-plugin-auth hitchy-plugin-session hitchy-plugin-cookies hitchy-odem
+``` 
+
+Names of peer dependencies are qualified so it's okay to omit the prefix `hitchy-plugin-` on every listed dependency.
+
+```bash
+hitchy-pm auth session cookies hitchy-odem
+```
+
+You can't omit prefix unless it is exactly matching `hitchy-plugin-`.
+
+Additionally supported parameters are:
+
+| parameter | description |
+|-----------|-------------|
+| `--quiet` | Suppresses output not related to some malfunction. |
+| `--exec`  | This option ends list of parameters processed by hitchy-pm itself and starts collection of command name and its arguments to be invoked after having installed all missing dependencies. |
+| `--resolve` | **Not yet supported.** This is going to use smarter approach inspecting current project's configuration and configuration of all its dependencies recursively to find the required peer dependencies. |
+
+### Examples
+
+```bash
+hitchy-pm auth session cookies hitchy-odem --exec mocha --recursive --ui bdd test/scripts
+```
+
+This line is checking whether listed hitchy extensions are available. If all dependencies exist or either missing dependency has been installed the comamnd is invoking mocha with given arguments to run some tests.
