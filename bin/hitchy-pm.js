@@ -80,7 +80,11 @@ for ( let i = 0; i < numArgs; i++ ) {
 				break;
 			}
 
-			deps.push( arg );
+			if ( /^hitchy-/.test( arg ) ) {
+				deps.push( arg );
+			} else {
+				deps.push( `hitchy-plugin-${arg}` );
+			}
 	}
 }
 
