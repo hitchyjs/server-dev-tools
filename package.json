@@ -1,6 +1,6 @@
 {
   "name": "hitchy-server-dev-tools",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "collection of tools for developing hitchy extensions",
   "main": "index.js",
   "scripts": {
