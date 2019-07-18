@@ -34,7 +34,7 @@ const HitchyTestTools = require( "hitchy/tools/test" );
 
 exports.query = {};
 
-[ "get", "post", "put", "delete", "request" ]
+[ "get", "post", "put", "patch", "delete", "head", "options", "trace", "request" ]
 	.forEach( methodName => {
 		exports.query[methodName] = HitchyTestTools[methodName];
 	} );
