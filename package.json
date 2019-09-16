@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/hitchyjs/server-dev-tools#readme",
   "dependencies": {
-    "hitchy": "*"
+    "hitchy": "^0.3.0"
   },
   "bin": {
     "hitchy-pm": "./bin/hitchy-pm.js"
