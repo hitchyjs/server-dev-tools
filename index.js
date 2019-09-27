@@ -42,14 +42,14 @@ exports.query = {};
 
 /**
  * Starts Hitchy server exposing project in provided folder and loads
- * extensions from explicitly listed folders.
+ * plugins from explicitly listed folders.
  *
  * @param {string} testProjectFolder path name of folder containing some Hitchy project basically served by started hitchy instance
- * @param {string} extensionFolder path name of folder containing project to be Hitchy extension of instance serving hitchy project
+ * @param {string} pluginsFolder path name of folder containing project to be Hitchy plugin of instance serving hitchy project
  * @param {object} options custom options to pass into Hitchy
  * @returns {Promise<Server>} promises started server instance of Hitchy
  */
-exports.start = function( { testProjectFolder = null, extensionFolder = null, options = {} } = {} ) {
+exports.start = function( { testProjectFolder = null, pluginsFolder = null, options = {} } = {} ) {
 	const customFolders = {};
 
 	if ( !options.projectFolder ) {
@@ -58,11 +58,11 @@ exports.start = function( { testProjectFolder = null, extensionFolder = null, op
 		}
 	}
 
-	if ( extensionFolder ) {
-		const strExtensionFolder = String( extensionFolder );
+	if ( pluginsFolder ) {
+		const strPluginsFolder = String( pluginsFolder );
 
-		customFolders.extensionsFolder = strExtensionFolder;
-		customFolders.explicitExtensions = [strExtensionFolder];
+		customFolders.pluginsFolder = strPluginsFolder;
+		customFolders.explicitPlugins = [strPluginsFolder];
 	}
 
 	if ( testProjectFolder ) {

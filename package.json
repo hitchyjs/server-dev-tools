@@ -1,7 +1,7 @@
 {
   "name": "hitchy-server-dev-tools",
   "version": "0.1.2",
-  "description": "collection of tools for developing hitchy extensions",
+  "description": "collection of tools for developing Hitchy plugins",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
