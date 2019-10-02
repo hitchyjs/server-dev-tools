@@ -132,7 +132,7 @@ In opposition to example above this one does not rely on mocha. Using mocha is p
 
 Starts Hitchy instance serving selected test project obeying plugin in separately provided folder as well as all its dependencies on discovering Hitchy plugins. Any custom option in `options` is passed into Hitchy's set of options.
 
-The method is returning Promise resolved with properly started server processing HTTP requests using some Hitchy instance. As of v0.4.1 of Hitchy (or v0.1.3 of this package) the started server is exposing Hitchy's API as `server.$hitchy`.
+The method is returning Promise resolved with properly started server processing HTTP requests using some Hitchy instance. As of v0.4.1 of Hitchy (or v0.1.4 of this package) the started server is exposing Hitchy's API as `server.$hitchy`.
 
 ### stop( instance )
 
