@@ -4,7 +4,8 @@
   "description": "collection of tools for developing Hitchy plugins",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "--exec mocha --recursive --exclude **/*.dist.js ./test --ui bdd",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
@@ -19,8 +20,18 @@
     "url": "https://github.com/hitchyjs/server-dev-tools/issues"
   },
   "homepage": "https://github.com/hitchyjs/server-dev-tools#readme",
+  "devDependencies": {
+    "mocha": "^6.2.0",
+    "should": "^13.2.3",
+    "should-http": "^0.1.1"
+  },
   "dependencies": {
-    "hitchy": "^0.4.1"
+    "eslint": "^6.4.0",
+    "eslint-config-cepharum": "^1.0.10",
+    "eslint-plugin-promise": "^4.2.1",
+    "hitchy": "^0.4.1",
+    "file-essentials": "0.0.13",
+    "promise-essentials": "0.0.8"
   },
   "bin": {
     "hitchy-pm": "./bin/hitchy-pm.js"

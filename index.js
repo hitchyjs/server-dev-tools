@@ -31,6 +31,11 @@
 const HitchyNode = require( "hitchy" ).node;
 const HitchyTestTools = require( "hitchy/tools/test" );
 
+const FileEssentials = require( "file-essentials" );
+const PromiseEssentials = require( "promise-essentials" );
+const os = require( "os" );
+const path = require( "path" );
+
 
 exports.query = {};
 
@@ -47,29 +52,36 @@ exports.query = {};
  * @param {string} testProjectFolder path name of folder containing some Hitchy project basically served by started hitchy instance
  * @param {string} pluginsFolder path name of folder containing project to be Hitchy plugin of instance serving hitchy project
  * @param {object} options custom options to pass into Hitchy
+ * @param {array} files list of files to temporarily create
  * @returns {Promise<Server>} promises started server instance of Hitchy
  */
-exports.start = function( { testProjectFolder = null, pluginsFolder = null, options = {} } = {} ) {
+exports.start = function( { testProjectFolder = null, pluginsFolder = null, files, options = {} } = {} ) {
 	const customFolders = {};
-
-	if ( !options.projectFolder ) {
-		if ( !testProjectFolder ) {
+	return new Promise( resolve => {
+		if ( files ) {
+			return FileEssentials.mkdir( os.tmpdir(), "$hitchy-dev" )
+				.then( () => Object.keys( files ) )
+				.then( keys => resolve( PromiseEssentials
+					.each( keys , key => FileEssentials.mkdir( path.resolve( os.tmpdir(), "$hitchy-dev", path.dirname( key ) ) )
+						.then( () => FileEssentials.write( path.resolve( os.tmpdir(), "$hitchy-dev", key ), files[key] ) )
+				 ) ) );
+		}
+		if ( !options.projectFolder && !testProjectFolder ) {
 			throw new TypeError( "missing required select of folder containing some Hitchy project" );
 		}
-	}
 
-	if ( pluginsFolder ) {
-		const strPluginsFolder = String( pluginsFolder );
+		if ( pluginsFolder ) {
+			const strPluginsFolder = String( pluginsFolder );
 
-		customFolders.pluginsFolder = strPluginsFolder;
-		customFolders.explicitPlugins = [strPluginsFolder];
-	}
+			customFolders.pluginsFolder = strPluginsFolder;
+			customFolders.explicitPlugins = [strPluginsFolder];
+		}
 
-	if ( testProjectFolder ) {
-		customFolders.projectFolder = String( testProjectFolder );
-	}
-
-	return HitchyTestTools.startServer( HitchyNode( Object.assign( {}, options, customFolders ) ) );
+		if ( testProjectFolder ) {
+			customFolders.projectFolder = String( testProjectFolder );
+		}
+		return undefined;
+	} ).then( () => HitchyTestTools.startServer( HitchyNode( Object.assign( {}, options, customFolders ) ) ) );
 };
 
 /**
@@ -79,11 +91,9 @@ exports.start = function( { testProjectFolder = null, pluginsFolder = null, opti
  * @returns {Promise} promises Hitchy server stopped
  */
 exports.stop = function( server ) {
-	if ( !( server instanceof Promise ) ) {
-		server = Promise.resolve( server );
-	}
+	const _server = server instanceof Promise ? server : Promise.resolve( server );
 
-	return server.then( serverInstance => {
+	return _server.then( serverInstance => {
 		return new Promise( resolve => {
 			if ( serverInstance ) {
 				serverInstance.once( "close", resolve );
