@@ -35,7 +35,9 @@ const FileEssentials = require( "file-essentials" );
 const PromiseEssentials = require( "promise-essentials" );
 const os = require( "os" );
 const path = require( "path" );
+const crypto = require( "crypto" );
 
+const hitchyDev = path.resolve( os.tmpdir(), "$hitchy-dev" );
 
 exports.query = {};
 
@@ -57,14 +59,25 @@ exports.query = {};
  */
 exports.start = function( { testProjectFolder = null, pluginsFolder = null, files, options = {} } = {} ) {
 	const customFolders = {};
-	return new Promise( resolve => {
+	return new Promise( ( resolve, reject ) => {
 		if ( files ) {
-			return FileEssentials.mkdir( os.tmpdir(), "$hitchy-dev" )
-				.then( () => Object.keys( files ) )
-				.then( keys => resolve( PromiseEssentials
-					.each( keys , key => FileEssentials.mkdir( path.resolve( os.tmpdir(), "$hitchy-dev", path.dirname( key ) ) )
-						.then( () => FileEssentials.write( path.resolve( os.tmpdir(), "$hitchy-dev", key ), files[key] ) )
-				 ) ) );
+			FileEssentials.mkdir( hitchyDev )
+				.then( () => {
+					const tmpPath = path.resolve( hitchyDev, crypto.randomBytes( 8 ).toString( "hex" ) );
+					return FileEssentials.mkdir( tmpPath )
+						.then( () => tmpPath );
+				} )
+				.then( tmpPath => PromiseEssentials
+					.each( Object.keys( files ) , key => FileEssentials.mkdir( path.resolve( tmpPath, path.dirname( key ) ) )
+						.then( () => FileEssentials.write( path.resolve( tmpPath, key ), files[key] ) )
+						.then( () => {
+							customFolders.pluginsFolder = customFolders.projectFolder = tmpPath;
+							customFolders.explicitPlugins = [tmpPath];
+							resolve( tmpPath );
+						} )
+					) )
+				.catch( reject );
+			return;
 		}
 		if ( !options.projectFolder && !testProjectFolder ) {
 			throw new TypeError( "missing required select of folder containing some Hitchy project" );
@@ -80,8 +93,18 @@ exports.start = function( { testProjectFolder = null, pluginsFolder = null, file
 		if ( testProjectFolder ) {
 			customFolders.projectFolder = String( testProjectFolder );
 		}
-		return undefined;
-	} ).then( () => HitchyTestTools.startServer( HitchyNode( Object.assign( {}, options, customFolders ) ) ) );
+		resolve();
+	} ).then( tmpPath => {
+		return HitchyTestTools.startServer( HitchyNode( Object.assign( {}, options, customFolders ) ) ).then(
+			server => {
+				if ( tmpPath ) {
+					server.tmpPath = tmpPath;
+					console.log( "server has tmpPath: ", server.tmpPath );
+				}
+				return server;
+			}
+		);
+	} );
 };
 
 /**
@@ -101,6 +124,18 @@ exports.stop = function( server ) {
 			} else {
 				resolve();
 			}
-		} );
+		} )
+			.then( () => {
+				const { tmpPath } = server;
+				if ( tmpPath ) {
+					return FileEssentials.rmdir( tmpPath )
+						.then( () => FileEssentials.list( path.resolve( hitchyDev ) ) )
+						.then( list => {
+							console.log( list );
+							return list.length ? undefined : FileEssentials.rmdir( path.resolve( hitchyDev ) );
+						} );
+				}
+				return undefined;
+			} );
 	} );
 };

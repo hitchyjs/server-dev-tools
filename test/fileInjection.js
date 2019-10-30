@@ -39,30 +39,52 @@ const path = require( "path" );
 
 describe( "fileInjection", () => {
 	it( "it creates temporary files with the content received from options.files", () => {
-		const server = HitchyDev.start( {
+		let server;
+		return HitchyDev.start( {
 			files: {
 				a: `// this is a test`,
 			}
 		} )
+			.then( s => { server = s; } )
 			.then( () => FileEssentials.read( path.resolve( os.tmpdir(), "$hitchy-dev", "a" ) ) )
 			.then( result => result.toString().should.eql( `// this is a test` ) )
-			.then( () => HitchyDev.stop( server ) );
+			.then( () => HitchyDev.stop( server ) )
+			.then( () => FileEssentials.stat( path.resolve( os.tmpdir(), "$hitchy-dev", "a" ) ) )
+			.then( result => result.isFile().should.be.false() )
+			.then( () => FileEssentials.stat( path.resolve( os.tmpdir(), "$hitchy-dev" ) ).should.be.rejected() );
 	} );
 
-	it( "it can create a config file that hithcy will find", () => {
-		const server = HitchyDev.start( {
-			files: {
-				"config/auth":
-					`"use strict";
+	it( "it can create a config file that hitchy will find", () => {
+		let server;
+		const file = `"use strict";
 					module.exports = function() {
 						return {
 							auth: {
 								filterPassword: "truthy",
 							}
 						};
-					};`
+					};`;
+		return HitchyDev.start( {
+			files: {
+				"config/auth.js": file
+			},
+			options: {
+				debug: true
 			}
 		} )
-			.then( () => server.$hitchy.hitchy.config.auth.filterPassword.should.be.eql( "truthy" ) );
+			.then( s => { server = s; console.log( "got: ", server.tmpPath ); } )
+			.then( () => FileEssentials.read( path.resolve( server.tmpPath, "config/auth.js" ) ) )
+			.then( result => result.toString().should.be.eql( file ) )
+			.then( () => server.$hitchy.hitchy.config.auth.filterPassword.should.be.eql( "truthy" ) )
+			.then( () => FileEssentials.stat( path.resolve( server.tmpPath, "config/auth.js" ) ) )
+			.then( result => result.isFile().should.be.true() )
+			.then( () => FileEssentials.stat( path.resolve( server.tmpPath, "config" ) ) )
+			.then( result => result.isDirectory().should.be.true() )
+			.then( () => HitchyDev.stop( server ) )
+			.then( () => FileEssentials.stat( path.resolve( server.tmpPath, "config/auth.js" ) ).should.be.resolvedWith( null ) )
+			.then( () => FileEssentials.stat( path.resolve( server.tmpPath, "config" ) ).should.be.resolvedWith( null ) )
+			.then( () => FileEssentials.stat( path.resolve( server.tmpPath ) ).should.be.resolvedWith( null ) )
+			.then( () => FileEssentials.stat( path.resolve( os.tmpdir(), "$hitchy-dev" ) ).should.be.resolvedWith( null ) );
+
 	} );
 } );
