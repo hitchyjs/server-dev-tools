@@ -99,7 +99,6 @@ exports.start = function( { testProjectFolder = null, pluginsFolder = null, file
 			server => {
 				if ( tmpPath ) {
 					server.tmpPath = tmpPath;
-					console.log( "server has tmpPath: ", server.tmpPath );
 				}
 				return server;
 			}
@@ -131,7 +130,6 @@ exports.stop = function( server ) {
 					return FileEssentials.rmdir( tmpPath )
 						.then( () => FileEssentials.list( path.resolve( hitchyDev ) ) )
 						.then( list => {
-							console.log( list );
 							return list.length ? undefined : FileEssentials.rmdir( path.resolve( hitchyDev ) );
 						} );
 				}

@@ -72,7 +72,6 @@ describe( "fileInjection", () => {
 				debug: true
 			}
 		} )
-			.then( s => { server = s; console.log( "got: ", server.tmpPath ); } )
 			.then( () => FileEssentials.read( path.resolve( server.tmpPath, "config/auth.js" ) ) )
 			.then( result => result.toString().should.be.eql( file ) )
 			.then( () => server.$hitchy.hitchy.config.auth.filterPassword.should.be.eql( "truthy" ) )
