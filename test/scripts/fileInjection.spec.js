@@ -108,6 +108,7 @@ describe( "fileInjection", () => {
 					server.$hitchy.hitchy.config.test.success.should.be.true();
 				} );
 		} );
+
 		it( "without testPluginsFolder", () => {
 			let server;
 			return HitchyDev.start( {
@@ -124,6 +125,26 @@ describe( "fileInjection", () => {
 	it( "can us a combination of files and projectFolder", () => {
 		return HitchyDev.start( {
 			testProjectFolder: Path.resolve( __dirname, "../project/basic" ),
+			files: {
+				"config/extra.js": `
+"use strict";
+module.exports = {
+	extra: {
+		success: true,
+	}
+};`,
+			}
+		} )
+			.then( server => {
+				server.$hitchy.hitchy.config.test.success.should.be.true();
+				server.$hitchy.hitchy.config.extra.success.should.be.true();
+			} );
+	} );
+
+	it( "can us a combination of files, pluginFolder and projectFolder", () => {
+		return HitchyDev.start( {
+			testProjectFolder: Path.resolve( __dirname, "../project/basic" ),
+			testPluginsFolder: Path.resolve( __dirname, "../../" ),
 			files: {
 				"config/extra.js": `
 "use strict";

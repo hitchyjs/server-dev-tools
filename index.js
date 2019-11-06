@@ -60,79 +60,65 @@ exports.query = {};
  */
 exports.start = function( { testProjectFolder = null, pluginsFolder = null, files = null, options = {}, useTmpPath = false } = {} ) {
 	const customFolders = {};
+	if ( pluginsFolder ) {
+		const strPluginsFolder = String( pluginsFolder );
+
+		customFolders.pluginsFolder = strPluginsFolder;
+		customFolders.explicitPlugins = [strPluginsFolder];
+	}
+
 	return new Promise( ( resolve, reject ) => {
 		if ( files || useTmpPath ) {
 			let tmpPath;
 			if ( options.debug ) console.log( "copying files into a temporary folder, this might take a while" );
+
 			FileEssentials.mkdir( hitchyDev )
 				.then( () => {
 					tmpPath = Path.resolve( hitchyDev, Crypto.randomBytes( 8 ).toString( "hex" ) );
 					return FileEssentials.mkdir( tmpPath );
 				} )
-				.then( () => {
-					const Promises = [];
-					const folders = { testProjectFolder, pluginsFolder };
-					for ( const folderName of [ "testProjectFolder", "pluginsFolder" ] ) {
-						const folder = folders[folderName];
-						if ( folder ) {
-							const tmpFolder = Path.resolve( tmpPath, folderName );
-							Promises.push( FileEssentials.mkdir( tmpFolder )
-								.then( () => FileEssentials.find( folder, {
-									filter: lP => lP !== ".git", converter: ( _, __, stat ) => ( stat.isFile() ? _ : null )
-								} )
-									.then( list => PromiseEssentials
-										.each( list, filename => {
-											return FileEssentials.read( Path.resolve( folder, filename ) )
-												.then( content => {
-													return FileEssentials.mkdir( tmpFolder, Path.dirname( filename ) )
-														.then( () => {
-															FileEssentials.write( Path.resolve( tmpFolder, filename ), content );
-														} );
-												} );
-										} )
-										.then( () => {
-											if ( folderName === "testProjectFolder" ) {
-												customFolders.pluginsFolder = tmpFolder;
-												customFolders.explicitPlugins = [tmpFolder];
-											} else {
-												customFolders.projectFolder = tmpFolder;
-											}
-										} )
-									)
-								) );
-						}
-					}
-					return Promise.all( Promises );
+				.then( () => ( testProjectFolder ? FileEssentials.find( testProjectFolder, {
+					filter: lP => lP !== ".git", converter: ( _, __, stat ) => ( stat.isFile() ? _ : null )
 				} )
-				.then( () => ( files ? PromiseEssentials
-					.each( Object.keys( files ) , key => FileEssentials.mkdir( Path.resolve( tmpPath, "testProjectFolder", Path.dirname( key ) ) )
-						.then( () => FileEssentials.write( Path.resolve( tmpPath, "testProjectFolder", key ), files[key] ) )
+					.then( list => PromiseEssentials
+						.each( list, filename => {
+							return FileEssentials.read( Path.resolve( testProjectFolder, filename ) )
+								.then( content => {
+									return FileEssentials.mkdir( tmpPath, Path.dirname( filename ) )
+										.then( () => {
+											FileEssentials.write( Path.resolve( tmpPath, filename ), content );
+										} );
+								} );
+						} )
 						.then( () => {
-							customFolders.projectFolder = Path.resolve( tmpPath, "testProjectFolder" );
-							resolve( tmpPath );
+							customFolders.projectFolder = tmpPath;
 						} )
 					) : undefined ) )
+				.then( () => ( files ? PromiseEssentials
+					.each( Object.keys( files ) , key => FileEssentials.mkdir( Path.resolve( tmpPath, Path.dirname( key ) ) )
+						.then( () => FileEssentials.write( Path.resolve( tmpPath, key ), files[key] ) )
+						.then( () => {
+							customFolders.projectFolder = Path.resolve( tmpPath );
+						} )
+						.then( () => {
+							customFolders.projectFolder = tmpPath;
+						} )
+					) : undefined ) )
+				.then( () => resolve( tmpPath ) )
 				.catch( err => {
 					console.error( err );
 					reject( err );
 				} );
-			return;
-		}
-		if ( !options.projectFolder && !testProjectFolder ) {
-			throw new TypeError( "missing required select of folder containing some Hitchy project" );
-		}
+		} else {
+			if ( !options.projectFolder && !testProjectFolder ) {
+				throw new TypeError( "missing required select of folder containing some Hitchy project" );
+			}
 
-		if ( pluginsFolder ) {
-			const strPluginsFolder = String( pluginsFolder );
-
-			customFolders.pluginsFolder = strPluginsFolder;
-			customFolders.explicitPlugins = [strPluginsFolder];
+			if ( testProjectFolder ) {
+				customFolders.projectFolder = String( testProjectFolder );
+			}
+			resolve();
 		}
-
-		if ( testProjectFolder ) {
-			customFolders.projectFolder = String( testProjectFolder );
-		}
-		resolve();
 	} ).then( tmpPath => {
 		return HitchyTestTools.startServer( HitchyNode( Object.assign( {}, options, customFolders ) ) ).then(
 			server => {
