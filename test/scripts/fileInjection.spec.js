@@ -56,11 +56,10 @@ describe( "fileInjection", () => {
 			}
 		} )
 			.then( s => { server = s; } )
-			.then( () => FileEssentials.read( Path.resolve( server.tmpPath, "testProjectFolder", "a" ) ) )
+			.then( () => FileEssentials.read( Path.resolve( server.tmpPath, "a" ) ) )
 			.then( result => result.toString().should.eql( `// this is a test` ) )
 			.then( () => HitchyDev.stop( server ) )
-			.then( () => FileEssentials.stat( Path.resolve( server.tmpPath, "testProjectFolder", "a" ) ).should.be.resolvedWith( null ) )
-			.then( () => FileEssentials.stat( Path.resolve( server.tmpPath, "testProjectFolder" ) ).should.be.resolvedWith( null ) )
+			.then( () => FileEssentials.stat( Path.resolve( server.tmpPath, "a" ) ).should.be.resolvedWith( null ) )
 			.then( () => FileEssentials.stat( Path.resolve( server.tmpPath ) ).should.be.resolvedWith( null ) );
 	} );
 
@@ -80,17 +79,16 @@ describe( "fileInjection", () => {
 			},
 		} )
 			.then( s => ( server = s ) )
-			.then( () => FileEssentials.read( Path.resolve( server.tmpPath, "testProjectFolder", "config/auth.js" ) ) )
+			.then( () => FileEssentials.read( Path.resolve( server.tmpPath, "config/auth.js" ) ) )
 			.then( result => result.toString().should.be.eql( file ) )
 			.then( () => server.$hitchy.hitchy.config.auth.filterPassword.should.be.eql( "truthy" ) )
-			.then( () => FileEssentials.stat( Path.resolve( server.tmpPath, "testProjectFolder", "config/auth.js" ) ) )
+			.then( () => FileEssentials.stat( Path.resolve( server.tmpPath, "config/auth.js" ) ) )
 			.then( result => result.isFile().should.be.true() )
-			.then( () => FileEssentials.stat( Path.resolve( server.tmpPath, "testProjectFolder", "config" ) ) )
+			.then( () => FileEssentials.stat( Path.resolve( server.tmpPath, "config" ) ) )
 			.then( result => result.isDirectory().should.be.true() )
 			.then( () => HitchyDev.stop( server ) )
-			.then( () => FileEssentials.stat( Path.resolve( server.tmpPath, "testProjectFolder", "config/auth.js" ) ).should.be.resolvedWith( null ) )
-			.then( () => FileEssentials.stat( Path.resolve( server.tmpPath, "testProjectFolder", "config" ) ).should.be.resolvedWith( null ) )
-			.then( () => FileEssentials.stat( Path.resolve( server.tmpPath, "testProjectFolder" ) ).should.be.resolvedWith( null ) )
+			.then( () => FileEssentials.stat( Path.resolve( server.tmpPath, "config/auth.js" ) ).should.be.resolvedWith( null ) )
+			.then( () => FileEssentials.stat( Path.resolve( server.tmpPath, "config" ) ).should.be.resolvedWith( null ) )
 			.then( () => FileEssentials.stat( Path.resolve( server.tmpPath ) ).should.be.resolvedWith( null ) )
 			.then( () => FileEssentials.stat( Path.resolve( os.tmpdir(), "$hitchy-dev" ) ).should.be.resolvedWith( null ) );
 
