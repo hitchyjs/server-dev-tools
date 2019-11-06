@@ -33,11 +33,11 @@ const HitchyTestTools = require( "hitchy/tools/test" );
 
 const FileEssentials = require( "file-essentials" );
 const PromiseEssentials = require( "promise-essentials" );
-const os = require( "os" );
-const path = require( "path" );
-const crypto = require( "crypto" );
+const Os = require( "os" );
+const Path = require( "path" );
+const Crypto = require( "crypto" );
 
-const hitchyDev = path.resolve( os.tmpdir(), "$hitchy-dev" );
+const hitchyDev = Path.resolve( Os.tmpdir(), "$hitchy-dev" );
 
 exports.query = {};
 
@@ -55,28 +55,67 @@ exports.query = {};
  * @param {string} pluginsFolder path name of folder containing project to be Hitchy plugin of instance serving hitchy project
  * @param {object} options custom options to pass into Hitchy
  * @param {array} files list of files to temporarily create
+ * @param {boolean} useTmpPath if pluginsFolder and testProjectFolder should be copied into a temporary Folder
  * @returns {Promise<Server>} promises started server instance of Hitchy
  */
-exports.start = function( { testProjectFolder = null, pluginsFolder = null, files, options = {} } = {} ) {
+exports.start = function( { testProjectFolder = null, pluginsFolder = null, files = null, options = {}, useTmpPath = false } = {} ) {
 	const customFolders = {};
 	return new Promise( ( resolve, reject ) => {
-		if ( files ) {
+		if ( files || useTmpPath ) {
+			let tmpPath;
+			if ( options.debug ) console.log( "copying files into a temporary folder, this might take a while" );
 			FileEssentials.mkdir( hitchyDev )
 				.then( () => {
-					const tmpPath = path.resolve( hitchyDev, crypto.randomBytes( 8 ).toString( "hex" ) );
-					return FileEssentials.mkdir( tmpPath )
-						.then( () => tmpPath );
+					tmpPath = Path.resolve( hitchyDev, Crypto.randomBytes( 8 ).toString( "hex" ) );
+					return FileEssentials.mkdir( tmpPath );
 				} )
-				.then( tmpPath => PromiseEssentials
-					.each( Object.keys( files ) , key => FileEssentials.mkdir( path.resolve( tmpPath, path.dirname( key ) ) )
-						.then( () => FileEssentials.write( path.resolve( tmpPath, key ), files[key] ) )
+				.then( () => {
+					const Promises = [];
+					const folders = { testProjectFolder, pluginsFolder };
+					for ( const folderName of [ "testProjectFolder", "pluginsFolder" ] ) {
+						const folder = folders[folderName];
+						if ( folder ) {
+							const tmpFolder = Path.resolve( tmpPath, folderName );
+							Promises.push( FileEssentials.mkdir( tmpFolder )
+								.then( () => FileEssentials.find( folder, {
+									filter: lP => lP !== ".git", converter: ( _, __, stat ) => ( stat.isFile() ? _ : null )
+								} )
+									.then( list => PromiseEssentials
+										.each( list, filename => {
+											return FileEssentials.read( Path.resolve( folder, filename ) )
+												.then( content => {
+													return FileEssentials.mkdir( tmpFolder, Path.dirname( filename ) )
+														.then( () => {
+															FileEssentials.write( Path.resolve( tmpFolder, filename ), content );
+														} );
+												} );
+										} )
+										.then( () => {
+											if ( folderName === "testProjectFolder" ) {
+												customFolders.pluginsFolder = tmpFolder;
+												customFolders.explicitPlugins = [tmpFolder];
+											} else {
+												customFolders.projectFolder = tmpFolder;
+											}
+										} )
+									)
+								) );
+						}
+					}
+					return Promise.all( Promises );
+				} )
+				.then( () => ( files ? PromiseEssentials
+					.each( Object.keys( files ) , key => FileEssentials.mkdir( Path.resolve( tmpPath, "testProjectFolder", Path.dirname( key ) ) )
+						.then( () => FileEssentials.write( Path.resolve( tmpPath, "testProjectFolder", key ), files[key] ) )
 						.then( () => {
-							customFolders.pluginsFolder = customFolders.projectFolder = tmpPath;
-							customFolders.explicitPlugins = [tmpPath];
+							customFolders.projectFolder = Path.resolve( tmpPath, "testProjectFolder" );
 							resolve( tmpPath );
 						} )
-					) )
-				.catch( reject );
+					) : undefined ) )
+				.catch( err => {
+					console.error( err );
+					reject( err );
+				} );
 			return;
 		}
 		if ( !options.projectFolder && !testProjectFolder ) {
@@ -128,9 +167,9 @@ exports.stop = function( server ) {
 				const { tmpPath } = server;
 				if ( tmpPath ) {
 					return FileEssentials.rmdir( tmpPath )
-						.then( () => FileEssentials.list( path.resolve( hitchyDev ) ) )
+						.then( () => FileEssentials.list( Path.resolve( hitchyDev ) ) )
 						.then( list => {
-							return list.length ? undefined : FileEssentials.rmdir( path.resolve( hitchyDev ) );
+							return list.length ? undefined : FileEssentials.rmdir( Path.resolve( hitchyDev ) );
 						} );
 				}
 				return undefined;

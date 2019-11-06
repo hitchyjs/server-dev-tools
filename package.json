@@ -4,7 +4,7 @@
   "description": "collection of tools for developing Hitchy plugins",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --recursive --exclude **/*.dist.js ./test --ui bdd",
+    "test": "mocha --recursive --exclude **/*.dist.js ./test/scripts --ui bdd",
     "lint": "eslint ."
   },
   "repository": {
