@@ -2,7 +2,14 @@
 	"extends": [
 		"eslint-config-cepharum"
 	],
-  "rules": {
-	"consistent-this": ["warn", "that", "api"]
-  }
+	"env": {
+		"mocha": false
+	},
+	"rules": {
+		"consistent-this": [
+			"warn",
+			"that",
+			"api"
+		]
+	}
 }
