@@ -1,38 +1,41 @@
 {
-  "name": "hitchy-server-dev-tools",
-  "version": "0.1.6",
-  "description": "collection of tools for developing Hitchy plugins",
-  "main": "index.js",
-  "scripts": {
-    "test": "mocha --recursive --exclude **/*.dist.js ./test/scripts --ui bdd",
-    "lint": "eslint ."
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/hitchyjs/server-dev-tools.git"
-  },
-  "keywords": [
-    "hitchy"
-  ],
-  "author": "cepharum GmbH",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/hitchyjs/server-dev-tools/issues"
-  },
-  "homepage": "https://github.com/hitchyjs/server-dev-tools#readme",
-  "devDependencies": {
-    "mocha": "^7.1.2",
-    "should": "^13.2.3",
-    "eslint": "^6.8.0",
-    "eslint-config-cepharum": "^1.0.11",
-    "eslint-plugin-promise": "^4.2.1"
-  },
-  "dependencies": {
-    "hitchy": "^0.6.1",
-    "file-essentials": "^0.1.1",
-    "promise-essentials": "^0.2.0"
-  },
-  "bin": {
-    "hitchy-pm": "./bin/hitchy-pm.js"
-  }
+	"name": "hitchy-server-dev-tools",
+	"version": "0.1.6",
+	"description": "collection of tools for developing Hitchy plugins",
+	"main": "index.js",
+	"scripts": {
+		"test": "mocha --recursive --exclude **/*.dist.js ./test/scripts --ui bdd",
+		"lint": "eslint ."
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/hitchyjs/server-dev-tools.git"
+	},
+	"keywords": [
+		"hitchy"
+	],
+	"engines": {
+		"node": ">=10.0.0"
+	},
+	"author": "cepharum GmbH",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/hitchyjs/server-dev-tools/issues"
+	},
+	"homepage": "https://github.com/hitchyjs/server-dev-tools#readme",
+	"devDependencies": {
+		"mocha": "^7.1.2",
+		"should": "^13.2.3",
+		"eslint": "^6.8.0",
+		"eslint-config-cepharum": "^1.0.11",
+		"eslint-plugin-promise": "^4.2.1"
+	},
+	"dependencies": {
+		"hitchy": "^0.6.1",
+		"file-essentials": "^0.1.1",
+		"promise-essentials": "^0.2.0"
+	},
+	"bin": {
+		"hitchy-pm": "./bin/hitchy-pm.js"
+	}
 }
