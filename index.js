@@ -43,6 +43,7 @@ const temporaryBaseFolder = Path.resolve( OS.tmpdir(), "$hitchy-dev" );
  * @property {string} testProjectFolder path name of folder containing some Hitchy project basically served by started hitchy instance
  * @property {string} pluginsFolder path name of folder containing project to be discovered by Hitchy as a plugin
  * @property {object} options custom options to pass into Hitchy
+ * @property {object} args fake CLI arguments to pass into Hitchy
  * @property {array} files list of files to temporarily create
  * @property {boolean} useTmpPath forces toolkit to copy selected project folder to temporary path (e.g. on using w/o adjusting files' content)
  */
