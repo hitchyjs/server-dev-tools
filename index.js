@@ -217,10 +217,13 @@ exports.stop = function( context, keepFiles = false ) {
  *
  * @param {object} context context descriptor
  * @param {ToolKitOptions} toolkitOptions customizes managed Hitchy instance
+ * @param {int} timeout timeout in milliseconds for running setup-script
  * @returns {function(): Promise<any>} function to be invoked by test runner's preparation code
  */
-exports.before = function( context, toolkitOptions = {} ) {
+exports.before = function( context, toolkitOptions = {}, timeout = 2000 ) {
 	return function() {
+		this.timeout( timeout );
+
 		return preStart( toolkitOptions )
 			.then( ( { customFolders, temporaryFolder } ) => {
 				const options = Object.assign( {}, toolkitOptions.options, customFolders );

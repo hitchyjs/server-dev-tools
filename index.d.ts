@@ -69,9 +69,10 @@ declare module "hitchy-server-dev-tools" {
      *
      * @param context handle of resulting runtime environment, will be populated on invoking returned function
      * @param toolkitOptions customizations for runtime environment
+     * @param timeout timeout in milliseconds for running returned function
      * @returns function for use with methods like mocha's `before()` or `beforeEach()`
      */
-    function before( context: ContextDescriptor, toolkitOptions: ToolkitOptions ): GeneratedFunction;
+    function before( context: ContextDescriptor, toolkitOptions: ToolkitOptions, timeout?: number ): GeneratedFunction;
 
     /**
      * Generates function for use with test runners' support for tearing down
