@@ -222,7 +222,9 @@ exports.stop = function( context, keepFiles = false ) {
  */
 exports.before = function( context, toolkitOptions = {}, timeout = 2000 ) {
 	return function() {
-		this.timeout( timeout );
+		if ( this && typeof this.timeout === "function" ) {
+			this.timeout( timeout );
+		}
 
 		return preStart( toolkitOptions )
 			.then( ( { customFolders, temporaryFolder } ) => {
