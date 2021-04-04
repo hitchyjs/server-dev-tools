@@ -1,3 +1,7 @@
+# [Hitchy](https://core.hitchy.org) has [moved its repositories](https://gitlab.com/hitchy) incl. [this one](https://gitlab.com/hitchy/server-dev-tools).
+
+---
+
 # hitchy-server-dev-tools
 
 _toolkit for testing plugins and applications basing on [Hitchy](https://www.npmjs.com/package/hitchy)_
